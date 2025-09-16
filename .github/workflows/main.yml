@@ -26,16 +26,6 @@ jobs:
         - name: Run tests (TRX output)
           run: dotnet test --logger:"trx;LogFilePrefix=testResults" --results-directory ./TestResults src/Tests/Nop.Tests/Nop.Tests.csproj
 
-        # ✅ Install ReportGenerator so you can convert TRX → JUnit + HTML
-        - name: Install ReportGenerator
-          run: dotnet tool install -g dotnet-reportgenerator-globaltool
-
-        - name: Generate test reports (JUnit + HTML)
-          run: |
-            reportgenerator \
-              -reports:**/TestResults/**/*.trx \
-              -targetdir:TestReports \
-              -reporttypes:"Html;JUnitXml"
 
         # Upload raw TRX
         - name: Upload TRX report
@@ -44,19 +34,6 @@ jobs:
             name: test-results-trx
             path: '**/TestResults/*.trx'
 
-        # Upload HTML report
-        - name: Upload HTML report
-          uses: actions/upload-artifact@v4
-          with:
-            name: test-results-html
-            path: TestReports/index.html
-
-        # Upload JUnit report
-        - name: Upload JUnit report
-          uses: actions/upload-artifact@v4
-          with:
-            name: test-results-junit
-            path: TestReports/junit.xml
 
         - name: publish
           run: dotnet publish --configuration Release src/Presentation/Nop.Web/Nop.Web.csproj --output published
