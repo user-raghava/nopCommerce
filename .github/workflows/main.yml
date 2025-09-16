@@ -24,7 +24,7 @@ jobs:
           run: dotnet build --configuration Debug src/Presentation/Nop.Web/Nop.Web.csproj
 
         - name: Run tests (TRX output)
-          run: dotnet test --logger:"trx;LogFilePrefix=testResults" --results-directory TestResults src/Tests/Nop.Tests/Nop.Tests.csproj
+          run: dotnet test --logger:"trx;LogFilePrefix=testResults" --results-directory ./TestResults src/Tests/Nop.Tests/Nop.Tests.csproj
 
         # ✅ Install ReportGenerator so you can convert TRX → JUnit + HTML
         - name: Install ReportGenerator
