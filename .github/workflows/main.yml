@@ -33,9 +33,9 @@ jobs:
         - name: Generate test reports (JUnit + HTML)
           run: |
             reportgenerator \
-              -reports:*/TestResults/*.trx \
+              -reports:**/TestResults/**/*.trx \
               -targetdir:TestReports \
-              -reporttypes:"Html;JUnit"
+              -reporttypes:"Html;JUnitXml"
 
         # Upload raw TRX
         - name: Upload TRX report
