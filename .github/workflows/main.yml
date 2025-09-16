@@ -1,4 +1,5 @@
 ---
+name: dotnet
 on:
     pull_request:
         branches:
@@ -12,14 +13,30 @@ jobs:
         - name: Setup dotnet
           uses: actions/setup-dotnet@v5
           with:
-            dotnet-version: | 
+            dotnet-version: |
               9.0.x
+
         - uses: actions/checkout@v5
+
         - name: restore
           run: dotnet restore src/Presentation/Nop.Web/Nop.Web.csproj
+
         - name: build
           run: dotnet build --configuration Debug src/Presentation/Nop.Web/Nop.Web.csproj
+
         - name: test
           run: dotnet test src/Tests/Nop.Tests/Nop.Tests.csproj
+
         - name: publish
           run: dotnet publish --configuration Release src/Presentation/Nop.Web/Nop.Web.csproj --output published
+
+        # ✅ Zip the published output
+        - name: Zip artifact
+          run: zip -r ${{ github.event.repository.name }}-${{ github.run_number }}.zip published
+
+        # ✅ Upload artifact to GitHub Actions
+        - name: Upload artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ github.event.repository.name }}-${{ github.run_number }}
+            path: ${{ github.event.repository.name }}-${{ github.run_number }}.zip
