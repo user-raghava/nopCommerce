@@ -5,9 +5,16 @@ on:
         - develop
     workflow_dispatch:
 
+permissions:
+      actions: read
+      contents: read
+      security-events: write   # required for uploading results
+          
+
 jobs:
     build:
         runs-on: ubuntu-latest
+
         steps:
         - name: Setup dotnet
           uses: actions/setup-dotnet@v5
@@ -16,6 +23,11 @@ jobs:
               9.0.x
 
         - uses: actions/checkout@v5
+
+        - name: Initialize CodeQL       # ✅ CodeQL step
+          uses: github/codeql-action/init@v3
+          with:
+            languages: csharp   # ✅ For .NET projects
 
         - name: restore
           run: dotnet restore src/Presentation/Nop.Web/Nop.Web.csproj
@@ -26,6 +38,8 @@ jobs:
         - name: Run tests (TRX output)
           run: dotnet test --logger:"trx;LogFilePrefix=testResults" --results-directory ./TestResults src/Tests/Nop.Tests/Nop.Tests.csproj
 
+        - name: Perform CodeQL Analysis
+          uses: github/codeql-action/analyze@v3
 
         # Upload raw TRX
         - name: Upload TRX report
