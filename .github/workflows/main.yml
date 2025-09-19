@@ -1,9 +1,14 @@
-name: dotnet
+---
+name: dotnet with sonarQube and codeQl analysis
 on:
     pull_request:
         branches:
         - develop
     workflow_dispatch:
+permissions:
+      actions: read
+      contents: read
+      security-events: write   # required for uploading results
 
 jobs:
     build:
@@ -16,12 +21,19 @@ jobs:
               9.0.x
 
         - uses: actions/checkout@v5
+        - name: Initialize CodeQL               # CodeQL Action for C#
+          uses: github/codeql-action/init@v3
+          with:
+            languages: csharp
 
         - name: restore
           run: dotnet restore src/Presentation/Nop.Web/Nop.Web.csproj
 
         - name: build
           run: dotnet build --configuration Debug src/Presentation/Nop.Web/Nop.Web.csproj
+
+        - name: Perform CodeQL Analysis
+          uses: github/codeql-action/analyze@v3
 
         - name: Run tests (TRX output)
           run: dotnet test --logger:"trx;LogFilePrefix=testResults" --results-directory ./TestResults src/Tests/Nop.Tests/Nop.Tests.csproj
@@ -32,6 +44,7 @@ jobs:
           with:
             name: test-results-trx
             path: '**/TestResults/*.trx'
+
 
         - name: publish
           run: dotnet publish --configuration Release src/Presentation/Nop.Web/Nop.Web.csproj --output published
